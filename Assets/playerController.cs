@@ -30,6 +30,7 @@ public class playerController : MonoBehaviour
     
     Vector3 movimiento;
     [SerializeField] Camera cam;
+    [SerializeField] Light light_1;
 
     Rigidbody rb;
 
@@ -56,7 +57,7 @@ public class playerController : MonoBehaviour
         leftHand.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 joystickIzq);
         rigtHand.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 joystickDer);
         
-        rotacion = (.5f+Time.deltaTime) * joystickIzq.x;
+        rotacion = (.5f+Time.deltaTime) * -joystickIzq.x;
         //transform.Translate(movimiento * speedRotation * Time.deltaTime);
 
         if (joystickDer.x != 0 || joystickDer.y != 0)
@@ -102,28 +103,32 @@ public class playerController : MonoBehaviour
         }
 
         rigtHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool A);
-        rigtHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool B);
+        rigtHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool B); //no se usa
+        rigtHand.TryGetFeatureValue(CommonUsages.triggerButton, out bool trigger);
 
-        if(A || B)
+        if (A)
         {
-            if (!flashLight && batery > 0.0f)
-            {
-                flashLight = true;
-            }
-            else
-            {
-                flashLight = false;
-            }
+            flashLight = !flashLight; 
         }
 
-        if (flashLight)
+        Debug.Log(flashLight);
+
+        if (flashLight && batery > 0.0f)
         {
-            batery = Mathf.Clamp(batery - (bateryDcrease* Time.deltaTime), 0.0f, maxBatery);
-            flashLight = true;
+            Debug.Log("on");
+            light_1.enabled = true;
+            batery = Mathf.Clamp(batery - (bateryDcrease * Time.deltaTime), 0.0f, maxBatery);
         }
         else
         {
-            flashLight = false;
+            Debug.Log("off");
+            light_1.enabled = false;
+        }
+
+
+        if (trigger)
+        {
+            batery = Mathf.Clamp(batery + (0.5f * Time.deltaTime), 0.0f, maxBatery);
         }
 
     }
