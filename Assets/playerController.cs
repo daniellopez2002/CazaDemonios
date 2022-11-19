@@ -7,6 +7,8 @@ public class playerController : MonoBehaviour
 {
     public float speedRotation = 5.0f;
     public float movementSpeed = 1.0f;
+    [SerializeField] float stepHeigth = 0.3f;
+    [SerializeField] float stepSmooth= 0.1f;
     float rotacion;
 
     InputDevice rigtHand;
@@ -18,7 +20,8 @@ public class playerController : MonoBehaviour
     float bateryDcrease = 5.0f;
     float bateryIncrease = 15.0f;
 
-
+    public bool cross, protect;
+    public float crossEnergy = 15.0f;
 
 
     public float stamina = 100.0f;
@@ -31,14 +34,19 @@ public class playerController : MonoBehaviour
     Vector3 movimiento;
     [SerializeField] Camera cam;
     [SerializeField] Light light_1;
+    [SerializeField] Light light_2;
+    [SerializeField] GameObject stepRayUpper;
+    [SerializeField] GameObject stepRayLower;
+    
 
-    Rigidbody rb;
+
+    CharacterController cc;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        
+        cc = GetComponent<CharacterController>();
+        stepRayUpper.transform.position = new Vector3(stepRayUpper.transform.position.x, stepHeigth, stepRayUpper.transform.position.z);
     }
 
     // Update is called once per frame
@@ -64,11 +72,12 @@ public class playerController : MonoBehaviour
         {
             Vector3 direction = (cam.transform.forward * joystickDer.y + cam.transform.right* joystickDer.x).normalized;
 
-            movimiento = direction * movementSpeed;
+            movimiento = direction;
         }
         
-        movimiento.y = rb.velocity.y;
-        rb.velocity = movimiento;
+        movimiento.y += -9.57f * Time.deltaTime;
+
+        cc.Move(movimiento * Time.deltaTime * movementSpeed);
 
 
         transform.Rotate(rotacion * Vector3.down, Space.World);
@@ -76,6 +85,7 @@ public class playerController : MonoBehaviour
 
         leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool Y);
         leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool X);
+        leftHand.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTrigger);
         if (Y || X)
         {
             stamina = Mathf.Clamp(stamina - (staminaDecrease * Time.deltaTime), 0.0f, maxStamina);
@@ -102,6 +112,24 @@ public class playerController : MonoBehaviour
             }
         }
 
+        if (leftTrigger)
+        {
+            cross = !cross;
+        }
+
+        if (cross && crossEnergy > 0.0f)
+        {
+            protect = true;
+            light_2.enabled = true;
+            crossEnergy = Mathf.Clamp(crossEnergy-(3f * Time.deltaTime), 0.0f, 15.0f);
+        }
+        else
+        {
+            protect = false;
+            light_2.enabled = false;
+            crossEnergy = Mathf.Clamp(crossEnergy + (1f * Time.deltaTime), 0.0f, 15.0f);
+        }
+
         rigtHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool A);
         rigtHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool B); //no se usa
         rigtHand.TryGetFeatureValue(CommonUsages.triggerButton, out bool trigger);
@@ -113,7 +141,7 @@ public class playerController : MonoBehaviour
 
         Debug.Log(flashLight);
 
-        if (flashLight && batery > 0.0f)
+        if (flashLight && batery > 0.0f && !cross)
         {
             Debug.Log("on");
             light_1.enabled = true;
@@ -128,8 +156,10 @@ public class playerController : MonoBehaviour
 
         if (trigger)
         {
+            flashLight = false;
             batery = Mathf.Clamp(batery + (0.5f * Time.deltaTime), 0.0f, maxBatery);
         }
-
     }
+
+    
 }
