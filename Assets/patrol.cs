@@ -5,8 +5,10 @@ using UnityEngine.AI;
 public class patrol : MonoBehaviour
 {
     public Transform[] points;
+    public bool lookPlayer;
     private int destPoint = 0;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
+    [SerializeField] Transform player;
 
 
     void Start()
@@ -25,15 +27,30 @@ public class patrol : MonoBehaviour
     void GotoNextPoint()
     {
         // Returns if no points have been set up
-        if (points.Length == 0)
-            return;
+        //if (points.Length == 0)
+        //    return;
 
-        // Set the agent to go to the currently selected destination.
-        agent.destination = points[destPoint].position;
+        if (!lookPlayer)
+        {
+            Debug.Log("No looking");
+            // Set the agent to go to the currently selected destination.
+            agent.destination = points[destPoint].position;
 
-        // Choose the next point in the array as the destination,
-        // cycling to the start if necessary.
-        destPoint = (destPoint + 1) % points.Length;
+            // Choose the next point in the array as the destination,
+            // cycling to the start if necessary.
+            destPoint = (destPoint + 1) % points.Length;
+        }
+        else
+        {
+            //agent.Stop();
+            Debug.Log("looking");
+            // Set the agent to go to the currently selected destination.
+            //agent.destination = player.position;
+            //agent.Resume();
+
+        }
+
+        
     }
 
 

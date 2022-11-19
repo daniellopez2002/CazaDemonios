@@ -34,7 +34,7 @@ public class playerController : MonoBehaviour
     Vector3 movimiento;
     [SerializeField] Camera cam;
     [SerializeField] Light light_1;
-    [SerializeField] Light light_2;
+    [SerializeField] GameObject light_2;
     [SerializeField] GameObject stepRayUpper;
     [SerializeField] GameObject stepRayLower;
     
@@ -83,21 +83,21 @@ public class playerController : MonoBehaviour
         transform.Rotate(rotacion * Vector3.down, Space.World);
 
 
-        leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool Y);
-        leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool X);
+        leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool X);
+        leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out bool Y);
         leftHand.TryGetFeatureValue(CommonUsages.triggerButton, out bool leftTrigger);
-        if (Y || X)
+        if (X)
         {
             stamina = Mathf.Clamp(stamina - (staminaDecrease * Time.deltaTime), 0.0f, maxStamina);
             if(stamina > 0.0)
             {
                 movementSpeed = 2.0f;
-                Debug.Log("runing");
+                
             }
             else
             {
                 movementSpeed =  1.0f;
-                Debug.Log("tired");
+                
             }
         }else if (stamina < maxStamina)
         {
@@ -112,7 +112,7 @@ public class playerController : MonoBehaviour
             }
         }
 
-        if (leftTrigger)
+        if (Y)
         {
             cross = !cross;
         }
@@ -120,14 +120,15 @@ public class playerController : MonoBehaviour
         if (cross && crossEnergy > 0.0f)
         {
             protect = true;
-            light_2.enabled = true;
-            crossEnergy = Mathf.Clamp(crossEnergy-(3f * Time.deltaTime), 0.0f, 15.0f);
+            light_2.SetActive(true);
+            crossEnergy = Mathf.Clamp(crossEnergy-(1f * Time.deltaTime), 0.0f, 15.0f);
         }
-        else
+        else if(!cross || crossEnergy <= 0.0f)
         {
+            cross = false;
             protect = false;
-            light_2.enabled = false;
-            crossEnergy = Mathf.Clamp(crossEnergy + (1f * Time.deltaTime), 0.0f, 15.0f);
+            light_2.SetActive(false);
+            crossEnergy = Mathf.Clamp(crossEnergy + (3f * Time.deltaTime), 0.0f, 15.0f);
         }
 
         rigtHand.TryGetFeatureValue(CommonUsages.primaryButton, out bool A);
@@ -139,17 +140,15 @@ public class playerController : MonoBehaviour
             flashLight = !flashLight; 
         }
 
-        Debug.Log(flashLight);
+
 
         if (flashLight && batery > 0.0f && !cross)
         {
-            Debug.Log("on");
             light_1.enabled = true;
             batery = Mathf.Clamp(batery - (bateryDcrease * Time.deltaTime), 0.0f, maxBatery);
         }
         else
         {
-            Debug.Log("off");
             light_1.enabled = false;
         }
 
