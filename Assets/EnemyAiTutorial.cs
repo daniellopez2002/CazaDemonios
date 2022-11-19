@@ -59,9 +59,9 @@ public class EnemyAiTutorial : MonoBehaviour
     private void SearchWalkPoint()
     {
         //Calculate random point in range
-        float randomZ = Random.Range(-2.0f, 50.0f);
-        float randomX = Random.Range(-5.0f, 24.0f);
-        float randomY = Random.Range(-4.0f, 7.0f);
+        float randomZ = Random.Range(-5.0f, 55.0f);
+        float randomX = Random.Range(-6.0f, 26.0f);
+        float randomY = Random.Range(-5.0f, 9.0f);
 
         walkPoint = new Vector3(transform.position.x + randomX, transform.position.y+randomY, transform.position.z + randomZ);
 
