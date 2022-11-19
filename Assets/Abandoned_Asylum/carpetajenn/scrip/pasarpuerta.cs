@@ -10,6 +10,7 @@ public class pasarpuerta : MonoBehaviour
      private void OnTriggerEnter(Collider other)
      {
        lapuerta.Play("abrir");
+     
      }
 
       private void OnTriggerExit(Collider other)
